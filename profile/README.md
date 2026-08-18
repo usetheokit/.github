@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/banner.png" alt="Theokit — your agent is a file. Drop it in agents/ and it gets a route, a stream and a UI." width="880" />
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/hero.png" alt="Theokit — your agent is a file. Drop it in agents/ and it gets a route, a stream and a UI. Already speaks to 43 model providers, 11 messaging channels, Postgres, Redis, Drizzle, OAuth, Stripe, and the MCP, ACP and A2A protocols." width="900" />
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-DE2329?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
 [![npm theokit](https://img.shields.io/npm/v/theokit?style=flat-square&label=theokit&color=CB3837&logo=npm&logoColor=white)](https://www.npmjs.com/package/theokit)
@@ -11,11 +11,9 @@
 
 **Ship the agent this afternoon. Own the runtime forever.**
 
-[**Quickstart**](#here-is-the-whole-thing) · [**What you can build**](#what-you-can-actually-build) · [**Integrations**](#everything-it-already-plugs-into) · [**Compare**](#so-how-is-this-different-from-what-you-already-use) · [**Repositories**](#the-repositories) · [**Contribute**](#come-build-it-with-us)
+[**Quickstart**](#here-is-the-whole-thing) · [**What you can build**](#what-you-can-actually-build) · [**Everything in the box**](#everything-in-the-box) · [**Compare**](#so-how-is-this-different-from-what-you-already-use) · [**Repositories**](#the-repositories) · [**Contribute**](#come-build-it-with-us)
 
 [usetheo.dev](https://usetheo.dev) · [Docs](https://usetheo.dev/docs) · [Discord](https://discord.usetheo.dev/) · [Good first issues](https://github.com/search?q=org%3Ausetheokit+is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22&type=issues)
-
-<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/works-with.png" alt="Works with 43 model providers, 11 messaging channels, Postgres, Redis, Drizzle, GitHub and Google OAuth, Stripe, and the MCP, ACP and A2A protocols." width="880" />
 
 </div>
 
@@ -205,18 +203,22 @@ either local markdown or Mem0, Honcho and Supermemory through adapters.
 
 ---
 
-## Everything it already plugs into
+## Everything in the box
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/integrations.png" alt="Integrations: 43 model providers, 11 messaging gateways, Postgres, Redis, SQLite, MySQL, MongoDB, Drizzle, Cloudflare, S3, GitHub and Google OAuth, magic link, Stripe, AbacatePay, Resend, and the MCP, ACP and A2A protocols." width="880" />
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/capabilities.png" alt="Capability map: 43 model providers, 11 channels, 20+ datastores, auth and payments, a 20+ tool agent toolkit, four safety gates, orchestration, evaluation, run economy, three protocols, the UI packages and nine deploy targets." width="900" />
 
 </div>
 
-Forty-three providers is a number we counted in the catalogue, not a marketing figure: the model id
-carries the provider as its prefix, so moving from `openai/…` to `anthropic/…` to a local
-`ollama/…` is a string change. Names and logos above belong to their owners and appear here to say
-what connects, nothing more.
+**Every number there was counted in this repository, not estimated.** 43 entries in the provider
+catalogue. 11 gateway packages. 10 kernel-confinement tests standing behind the four safety gates.
+9 deploy targets. And 2 — the runtime dependencies `@theokit/sdk` installs, `croner` and
+`jsonrepair`. Everything else on that wall is the package, not a tree you inherit.
+
+Take one card and ignore the other eleven if that is what your project needs: they are separate
+packages with separate versions. Names and logos above belong to their owners and appear only to
+say what connects.
 
 ---
 
