@@ -58,6 +58,153 @@ npx create-theokit my-app
 
 ---
 
+## What you didn't write
+
+The list of things that already work, because the framework owns them and not you:
+
+| The thing | Who writes it |
+| --- | --- |
+| The route for every agent | **Nobody.** The file's path is the route |
+| Token streaming, browser to model | **Nobody.** `useAgent` is already streaming |
+| Pause, ask a human, resume | One line: `.approval(…)` |
+| Input validation, typed end to end | Your Zod schema — one definition, server and client |
+| Auth, sessions, OAuth, magic links | Framework primitives and `@theokit/auth-*` |
+| WebSockets, cron, webhooks | `defineWebSocket`, `defineCron`, `defineWebhook` |
+| The chat UI itself | `@theokit/ui` — a themeable component library with a shadcn-compatible registry |
+| Slack, WhatsApp, Discord, email, SMS | A gateway package each, eleven of them |
+
+You write the system prompt, the tools, and your product. That was always the interesting part.
+
+---
+
+## What you can actually build
+
+Three shapes, all of them shipping code today. None of this is a roadmap section.
+
+### 1 · Your own coding agent — the whole one
+
+The file tools, the patch tool, the git tools, the test runner and the shell are a package. The
+shell runs **inside a kernel sandbox**: bubblewrap plus a seccomp filter, so a command cannot write
+outside the workspace, cannot reach the network, and cannot `ptrace`. Secrets are scrubbed from the
+child environment by default — anything matching `*KEY*`, `*SECRET*`, `*TOKEN*`, `*PASSWORD*`.
+
+```ts
+import { Agent } from '@theokit/sdk'
+import { LinuxSandbox } from '@theokit/sdk/sandbox'
+import {
+  createApplyPatchTool, createEditFileTool, createGlobTool,
+  createReadFileTool, createSearchTextTool, createShellTool,
+} from '@theokit/sdk-tools'
+
+const projectRoot = process.cwd()
+
+const agent = await Agent.create({
+  apiKey: process.env.THEOKIT_API_KEY!,
+  model: { id: 'openai/gpt-4o' },
+  local: { cwd: projectRoot },
+  tools: [
+    createReadFileTool({ projectRoot }),
+    createEditFileTool({ projectRoot }),
+    createApplyPatchTool({ projectRoot }),
+    createGlobTool({ projectRoot }),
+    createSearchTextTool({ projectRoot }),
+    createShellTool({
+      projectRoot,
+      sandbox: new LinuxSandbox({ workDir: projectRoot }, { mode: 'workspace-write' }),
+    }),
+  ],
+})
+```
+
+That agent already plans (`plan_mode`, `update_plan`, `todolist`), reasons out loud (`think`,
+`analyze`), reads images, searches the web, drives an interactive shell over a real PTY, and runs
+your vitest suite. Permissions are **fail-closed** — a tool with no matching rule is `ask`, never a
+silent `allow` — and an untrusted project directory switches off every declared capability at once,
+hooks and MCP servers included.
+
+Then give it a face: `@theokit/tui` renders the streaming turn, the tool-call cards and the diffs
+in the terminal. Or skip the UI entirely — `@theokit/acp` speaks
+[Agent Client Protocol](https://agentclientprotocol.com) over stdio, so your agent shows up inside
+an editor that already talks ACP.
+
+**That is your own Claude Code, and you own every layer of it.**
+
+### 2 · A product, not a chat demo
+
+The part most agent stacks hand back to you. Here it is files:
+
+```
+app/page.tsx                    →  /
+app/(marketing)/pricing/page.tsx →  /pricing        route groups, no URL noise
+agents/support.ts               →  POST /api/agents/support
+server/ws/chat.ts               →  ws://…/ws/chat
+```
+
+Around that: encrypted, `httpOnly` session cookies with dual-key rotation and one
+`requireAuth(ctx.user)` that narrows the type; GitHub, Google and magic-link providers; Postgres,
+Redis, MySQL, SQLite and 20+ KV drivers behind `usePostgres` / `useDatabase` / `useUnstorage`;
+Drizzle with `@Transactional` and `@InjectRepository`; Stripe and AbacatePay; Resend for mail; Yjs
+for live collaboration; rate limiting, CSRF, OpenAPI generated from your Zod schemas; NestJS-style
+`@Controller` / `@UseGuards` decorators when a route deserves a pipeline. **Nine deploy targets** —
+node, Vercel, Cloudflare, Netlify, Bun, Deno Deploy, AWS Lambda, static, TheoCloud.
+
+Auth, a database and a real deploy are what separate an agentic product from an agentic demo.
+
+### 3 · Work that runs without you watching
+
+```ts
+import { Workflow, agentStep, fn } from '@theokit/sdk/workflow'
+
+const triage = Workflow.create({ name: 'triage' })
+  .then(fn('validate', (i: { id: string }) => { if (!i.id) throw new Error('missing id'); return i }))
+  .then(agentStep('classify', classifier, (i) => `Classify: ${JSON.stringify(i)}`))
+  .commit()
+```
+
+Branching, parallel and foreach steps come with it. `createSquad` chains a team of agents in order,
+subagents and `@theokit/sdk-handoff` cover manager-to-worker delegation, `defineCron` puts any of it
+on a schedule, and `runUntil` keeps an agent going toward a goal with a judge and a token budget
+deciding when it stops.
+
+And you can prove it works instead of hoping:
+
+```ts
+import { Eval, Scorers } from '@theokit/sdk/eval'
+
+const run = await Eval.create({
+  name: 'qa-smoke',
+  dataset: [{ input: 'Say ok', expected: 'ok' }],
+  scorers: [Scorers.containsExpected()],
+  agent: { apiKey: process.env.OPENROUTER_API_KEY, model: { id: 'openai/gpt-4o-mini' } },
+}).run()
+
+console.log(run.aggregate.meanScore)
+```
+
+`@theokit/sdk-budget` tracks spend in USD, `@theokit/sdk-cache` is a semantic response cache
+(vector + full-text hybrid), transcript compaction keeps long runs inside the window, and memory is
+either local markdown or Mem0, Honcho and Supermemory through adapters.
+
+*One more number worth knowing: `@theokit/sdk` ships with **two** runtime dependencies —
+`croner` and `jsonrepair`. Everything above is the package, not a dependency tree you inherit.*
+
+---
+
+## Everything it already plugs into
+
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/integrations.png" alt="Integrations: 43 model providers, 11 messaging gateways, Postgres, Redis, SQLite, MySQL, MongoDB, Drizzle, Cloudflare, S3, GitHub and Google OAuth, magic link, Stripe, AbacatePay, Resend, and the MCP, ACP and A2A protocols." width="880" />
+
+</div>
+
+Forty-three providers is a number we counted in the catalogue, not a marketing figure: the model id
+carries the provider as its prefix, so moving from `openai/…` to `anthropic/…` to a local
+`ollama/…` is a string change. Names and logos above belong to their owners and appear here to say
+what connects, nothing more.
+
+---
+
 ## So how is this different from what you already use
 
 These are not the same kind of tool — an orchestration library and a full-stack framework do not
@@ -89,25 +236,6 @@ Apache-2.0 on your own keys.
 *Verified against each project's published documentation and npm metadata on 2026-08-18, and this
 table was wrong in four cells before that check. If a cell is still wrong, open a PR — we would
 rather be corrected than flattering.*
-
----
-
-## What you didn't write
-
-The list of things that already work, because the framework owns them and not you:
-
-| The thing | Who writes it |
-| --- | --- |
-| The route for every agent | **Nobody.** The file's path is the route |
-| Token streaming, browser to model | **Nobody.** `useAgent` is already streaming |
-| Pause, ask a human, resume | One line: `.approval(…)` |
-| Input validation, typed end to end | Your Zod schema — one definition, server and client |
-| Auth, sessions, OAuth, magic links | Framework primitives and `@theokit/auth-*` |
-| WebSockets, cron, webhooks | `defineWebSocket`, `defineCron`, `defineWebhook` |
-| The chat UI itself | `@theokit/ui` — a themeable component library with a shadcn-compatible registry |
-| Slack, WhatsApp, Discord, email, SMS | A gateway package each, eleven of them |
-
-You write the system prompt, the tools, and your product. That was always the interesting part.
 
 ---
 
