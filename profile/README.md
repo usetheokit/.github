@@ -327,38 +327,15 @@ runtime, the session format, the provider, the channel. Here it is all four.
 
 ## How the pieces fit
 
-```mermaid
-flowchart TD
-    subgraph surface["What people see"]
-        UI["@theokit/ui<br/>React components"]
-        TUI["@theokit/tui<br/>terminal, Ink"]
-    end
+<div align="center">
 
-    subgraph app["Where the agent lives"]
-        TK["theokit<br/>web framework · agents as files"]
-        PL["@theokit/plugin-*<br/>auth · payments · realtime · forms…"]
-        DI["@theokit/di<br/>IoC · ORM"]
-    end
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/how-the-pieces-fit.png" alt="How the pieces fit: you write agent files, tools and schemas; the @theokit/sdk runtime executes them behind four gates and a kernel sandbox; entry points are the web UI, terminal UI, eleven channels, your app, the typed client and webhooks; and the capabilities are auth, channels, database, workflows, evaluations, nine deploy targets and the MCP, ACP and A2A protocols." width="980" />
 
-    subgraph harness["What runs the agent"]
-        SDK["@theokit/sdk<br/>Agent · Run · Tool · streaming"]
-    end
+</div>
 
-    subgraph channels["Where it answers"]
-        GW["@theokit/gateway-*<br/>Slack · WhatsApp · Discord · Email · SMS…"]
-    end
-
-    UI --> TK
-    TUI --> SDK
-    TK --> SDK
-    PL --> TK
-    DI --> SDK
-    GW --> SDK
-    SDK --> LLM["43 LLM providers — your keys"]
-```
-
-Every arrow is a published npm dependency, never a workspace link. Take one box, ignore the rest,
-and nothing breaks.
+You write the left column. Everything else is installed, and every arrow between boxes is a
+published npm dependency rather than a workspace link — take one box, ignore the rest, and nothing
+breaks.
 
 ---
 
