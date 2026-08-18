@@ -11,7 +11,11 @@
 
 **Ship the agent this afternoon. Own the runtime forever.**
 
+[**Quickstart**](#here-is-the-whole-thing) · [**What you can build**](#what-you-can-actually-build) · [**Integrations**](#everything-it-already-plugs-into) · [**Compare**](#so-how-is-this-different-from-what-you-already-use) · [**Repositories**](#the-repositories) · [**Contribute**](#come-build-it-with-us)
+
 [usetheo.dev](https://usetheo.dev) · [Docs](https://usetheo.dev/docs) · [Discord](https://discord.usetheo.dev/) · [Good first issues](https://github.com/search?q=org%3Ausetheokit+is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22&type=issues)
+
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/works-with.png" alt="Works with 43 model providers, 11 messaging channels, Postgres, Redis, Drizzle, GitHub and Google OAuth, Stripe, and the MCP, ACP and A2A protocols." width="880" />
 
 </div>
 
@@ -118,9 +122,20 @@ const agent = await Agent.create({
 
 That agent already plans (`plan_mode`, `update_plan`, `todolist`), reasons out loud (`think`,
 `analyze`), reads images, searches the web, drives an interactive shell over a real PTY, and runs
-your vitest suite. Permissions are **fail-closed** — a tool with no matching rule is `ask`, never a
-silent `allow` — and an untrusted project directory switches off every declared capability at once,
-hooks and MCP servers included.
+your vitest suite.
+
+And it does not get to run whatever it likes. Four gates stand between the model asking for a tool
+and the command executing — all four in the package, none of them yours to build:
+
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/security-gates.png" alt="Four gates before a tool runs: trust posture, permission engine, approval policy, kernel sandbox." width="920" />
+
+</div>
+
+The kernel gate is the one that is hard to fake. Ten integration tests prove the confinement against
+a real kernel in CI — and a mutation run proved the tests: swap the seccomp filter for one that
+denies nothing and they go red.
 
 Then give it a face: `@theokit/tui` renders the streaming turn, the tool-call cards and the diffs
 in the terminal. Or skip the UI entirely — `@theokit/acp` speaks
