@@ -60,32 +60,35 @@ npx create-theokit my-app
 
 ## So how is this different from what you already use
 
-Honest framing first: these are not the same kind of tool. An orchestration library and a
-full-stack framework do not compete for the same slot in your project. The table is where the
-lines actually diverge — not a scoreboard.
+These are not the same kind of tool — an orchestration library and a full-stack framework do not
+compete for the same slot. Only the rows below are ones we verified in each project's own docs
+today; where a project's documentation does not cover something, the cell says so rather than
+claiming a gap.
 
 | | **Theokit** | Mastra | Vercel AI SDK | LangGraph | OpenAI Agents SDK |
 | --- | --- | --- | --- | --- | --- |
 | What it is | **Full-stack web framework** | Agent framework + server | Model & UI toolkit | Orchestration library | Agent library |
 | An agent becomes an endpoint | **The file's path is the route** | Register it in a `Mastra` instance | You write the handler | You serve the graph | You write the handler |
-| Agent UI you can install | **`@theokit/ui` + `@theokit/tui`** | Dev playground only | Hooks (`useChat`), not components | — | — |
-| Slack · WhatsApp · Discord · email · SMS | **11 official gateways** | — | — | — | — |
+| Chat / agent UI | **`@theokit/ui` + `@theokit/tui`** — web and terminal | Dev playground | [AI Elements](https://github.com/vercel/ai-elements) — official, shadcn-based | [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) — official app | — |
+| Messaging channels | **11 first-party gateways** | Via Vercel's `@chat-adapter/*` | [`@chat-adapter/*`](https://www.npmjs.com/org/chat-adapter) — official | Not in its docs | Not in its docs |
 | Human-in-the-loop | ✅ `.approval()` | ✅ | ✅ | ✅ `interrupt` | ✅ `needsApproval` |
-| LLM providers | **43**, the prefix of the model id | Multi-provider | 23+ | Through LangChain | OpenAI-first, others via adapters |
+| LLM providers | **43**, the prefix of the model id | Multi-provider | First-party + community | Through LangChain | OpenAI-first, others via adapters |
 | Runtime licence | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT |
-| Sessions on disk | **Native Claude Code `.jsonl`** | Own format | n/a | Own checkpointer | Own format |
 
-**Where they beat us, plainly:** the AI SDK ships around 81 million downloads a month against our
-19 thousand. LangGraph, Mastra and the OpenAI SDK are each in the millions. If what you want is
-the largest ecosystem, the most Stack Overflow answers and the safest résumé line, they are the
-answer and we are not — yet.
+**Read that honestly.** Human-in-the-loop is table stakes — everyone has it. Vercel and LangChain
+both ship an official chat UI, and Mastra reaches Slack and WhatsApp through Vercel's adapters, so
+neither UI nor channels are ours alone. And they are far bigger: the AI SDK does around 81 million
+downloads a month against our 19 thousand. If you want the largest ecosystem and the most answers
+already written, that is where they are.
 
-What you get here instead is the whole path in one stack: the file becomes a route, the route
-already streams, the UI is installable, the channel is a package, and the runtime underneath is
-yours to fork. Nobody in that table gives you all five.
+Two things here are genuinely different. **A file is the route** — no registry, no instance to
+construct, no handler to write. And the whole path is first-party in one stack: the endpoint, the
+web UI, the terminal UI, eleven channels and the runtime, versioned together, with the runtime
+Apache-2.0 on your own keys.
 
-*Checked against each project's own documentation on 2026-08-18. Something wrong or out of date?
-Open a PR — we would rather be corrected than flattering.*
+*Verified against each project's published documentation and npm metadata on 2026-08-18, and this
+table was wrong in four cells before that check. If a cell is still wrong, open a PR — we would
+rather be corrected than flattering.*
 
 ---
 
