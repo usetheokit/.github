@@ -8,7 +8,7 @@ body:
         Thanks for taking the time to report this.
 
         One request before you start: **if this is a security problem, close this form.**
-        Use the private reporting link in [SECURITY.md](https://github.com/usetheokit/.github/blob/main/SECURITY.md)
+        Use the private reporting link in [SECURITY.md](https://github.com/usetheokit/.github/blob/HEAD/SECURITY.md)
         instead, so a fix can ship before the details are public.
 
   - type: dropdown

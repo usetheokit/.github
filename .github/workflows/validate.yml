@@ -4,9 +4,13 @@
 #
 #   jobs:
 #     validate:
-#       uses: usetheokit/.github/.github/workflows/validate.yml@main
+#       uses: usetheokit/.github/.github/workflows/validate.yml@workspace
 #       with:
 #         node-versions: '["22.12", "22"]'
+#
+# The @ref above is the default branch, which is mutable: a change here reaches
+# every caller on their next run. Pin it to a tag or a commit SHA once this
+# workflow has a second consumer and the churn starts to matter.
 #
 # Repositories with CI needs of their own (native rebuilds, sandbox smoke tests,
 # bundle budgets) keep their own workflow — theokit-sdk is the reference for that

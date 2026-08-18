@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/usetheokit/.github/main/profile/assets/logo-512.png" alt="Theokit" width="128" height="128" />
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/logo-512.png" alt="Theokit" width="128" height="128" />
 
 # Theokit
 
