@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/hero.png" alt="Theokit — your agent is a file. Drop it in agents/ and it gets a route, a stream and a UI. Already speaks to 43 model providers, 11 messaging channels, Postgres, Redis, Drizzle, OAuth, Stripe, and the MCP, ACP and A2A protocols." width="900" />
+<img src="https://raw.githubusercontent.com/usetheokit/.github/HEAD/profile/assets/hero.png" alt="Theokit — the full stack your agent needs: framework, agent runtime, web and terminal UI, channels, auth, database, workflows and deploy. Already speaks to 43 model providers, 11 messaging channels, Postgres, Redis, Drizzle, OAuth, Stripe, and the MCP, ACP and A2A protocols." width="900" />
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-DE2329?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
 [![npm theokit](https://img.shields.io/npm/v/theokit?style=flat-square&label=theokit&color=CB3837&logo=npm&logoColor=white)](https://www.npmjs.com/package/theokit)
@@ -9,7 +9,9 @@
 [![LLM providers](https://img.shields.io/badge/LLM%20providers-43-DE2329?style=flat-square)](https://github.com/usetheokit/theokit-sdk#configuration-reference)
 [![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.usetheo.dev/)
 
-**Ship the agent this afternoon. Own the runtime forever.**
+**Framework · agent runtime · web UI · terminal UI · channels · auth · database · workflows · deploy.**
+
+One stack. One `pnpm dev`. One deploy. Apache-2.0 all the way down, on your own provider keys.
 
 [**Quickstart**](#here-is-the-whole-thing) · [**What you can build**](#what-you-can-actually-build) · [**Everything in the box**](#everything-in-the-box) · [**Compare**](#so-how-is-this-different-from-what-you-already-use) · [**Repositories**](#the-repositories) · [**Contribute**](#come-build-it-with-us)
 
@@ -56,7 +58,15 @@ thread. One line here.
 npx create-theokit my-app
 ```
 
-**That is the aha.** An agent is a file. Everything below is what happens once you believe it.
+**That is the aha — and it is the small half.** The agent is a file; so is the page that renders
+it, the WebSocket beside it and the route your client imports with its types. One project, one
+`pnpm dev`, one deploy.
+
+The other half is what stands behind that file: an Apache-2.0 agent runtime with a kernel sandbox,
+a React library and a terminal library, eleven messaging channels, OAuth and encrypted sessions,
+Postgres and an ORM, workflows, evals and nine deploy targets. Each of those exists somewhere else
+as a separate product you would have integrated yourself. **Nobody in the comparison further down
+ships all of it as one stack** — that is the whole bet of this project.
 
 ---
 
@@ -232,6 +242,7 @@ claiming a gap.
 | | **Theokit** | Mastra | Vercel AI SDK | LangGraph | OpenAI Agents SDK |
 | --- | --- | --- | --- | --- | --- |
 | What it is | **Full-stack web framework** | Agent framework + server | Model & UI toolkit | Orchestration library | Agent library |
+| Pages, file routing, SSR | **Yes — it *is* the web framework** | No — bring your own | No — pairs with Next.js | No | No |
 | An agent becomes an endpoint | **The file's path is the route** | Register it in a `Mastra` instance | You write the handler | You serve the graph | You write the handler |
 | Chat / agent UI | **`@theokit/ui` + `@theokit/tui`** — web and terminal | Dev playground | [AI Elements](https://github.com/vercel/ai-elements) — official, shadcn-based | [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) — official app | — |
 | Messaging channels | **11 first-party gateways** | Via Vercel's `@chat-adapter/*` | [`@chat-adapter/*`](https://www.npmjs.com/org/chat-adapter) — official | Not in its docs | Not in its docs |
@@ -245,10 +256,16 @@ neither UI nor channels are ours alone. And they are far bigger: the AI SDK does
 downloads a month against our 19 thousand. If you want the largest ecosystem and the most answers
 already written, that is where they are.
 
-Two things here are genuinely different. **A file is the route** — no registry, no instance to
-construct, no handler to write. And the whole path is first-party in one stack: the endpoint, the
-web UI, the terminal UI, eleven channels and the runtime, versioned together, with the runtime
-Apache-2.0 on your own keys.
+**What is genuinely ours is the span.** Every other row in that table is a piece of the problem:
+an orchestrator, a model toolkit, an agent library, a framework-plus-server. Theokit is the app —
+pages, file routing and SSR — *and* the agent runtime under it, *and* the React library that
+renders the thread, *and* the terminal library, *and* the eleven channels, *and* the OAuth, *and*
+the database layer, *and* the nine deploy targets. One `pnpm install`, one version, one repository
+graph, Apache-2.0 throughout.
+
+Pick any of the others and you are still choosing a web framework, a component library, a channel
+layer, an auth provider and a deploy story — five decisions, five integrations, five things to keep
+in step. That is the work this replaces.
 
 *Verified against each project's published documentation and npm metadata on 2026-08-18, and this
 table was wrong in four cells before that check. If a cell is still wrong, open a PR — we would
