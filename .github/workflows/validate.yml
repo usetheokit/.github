@@ -1,0 +1,84 @@
+# Reusable CI for the Theokit organisation — opt-in, not automatic.
+#
+# A repository calls it instead of copying a hundred lines of YAML:
+#
+#   jobs:
+#     validate:
+#       uses: usetheokit/.github/.github/workflows/validate.yml@main
+#       with:
+#         node-versions: '["22.12", "22"]'
+#
+# Repositories with CI needs of their own (native rebuilds, sandbox smoke tests,
+# bundle budgets) keep their own workflow — theokit-sdk is the reference for that
+# shape. This one is the floor for repositories that have nothing yet.
+#
+# Every action is pinned to a commit SHA rather than a tag. A tag is a mutable
+# pointer: whoever controls the action repository can move `v4` onto new code, and
+# every workflow trusting that tag runs it on the next push with whatever secrets
+# the job holds.
+name: Validate
+
+on:
+  workflow_call:
+    inputs:
+      node-versions:
+        description: 'JSON array of Node versions to run the matrix over.'
+        type: string
+        default: '["22.12", "22"]'
+      pnpm-version:
+        description: 'pnpm version pinned through corepack.'
+        type: string
+        default: '9.15.0'
+      command:
+        description: 'The gate command. Must be the same one contributors run locally.'
+        type: string
+        default: 'pnpm validate'
+      runs-on:
+        type: string
+        default: 'ubuntu-latest'
+      timeout-minutes:
+        description: 'Without a ceiling, a wedged process holds the runner for GitHub default of 6 hours — per matrix leg.'
+        type: number
+        default: 30
+      working-directory:
+        type: string
+        default: '.'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate (node ${{ matrix.node-version }})
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(inputs.node-versions) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Nothing in this job pushes. Leaving the token in .git/config lets any
+          # later step — or any tool that reads the config — act as this repository.
+          persist-credentials: false
+
+      - name: Enable Corepack and pin pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${{ inputs.pnpm-version }} --activate
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - name: Install (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Gates
+        run: ${{ inputs.command }}

@@ -1,0 +1,24 @@
+# Blank issues are disabled on purpose: every form below asks for the handful of
+# things that decide whether a report is actionable. An issue with no version and
+# no reproduction costs the reporter more round-trips than the form saved them.
+#
+# This is the ORGANISATION default. A repository that ships its own
+# .github/ISSUE_TEMPLATE/ overrides it entirely.
+blank_issues_enabled: false
+
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/usetheokit/.github/blob/main/SECURITY.md
+    about: >
+      Do NOT open a public issue. SECURITY.md has the private reporting link for
+      every repository, so a fix can ship before the details are public.
+
+  - name: Usage question — how do I do X?
+    url: https://discord.usetheo.dev/
+    about: >
+      Discord is the fastest answer. If the docs could not tell you, say so there
+      or open a Documentation issue — a question the docs cannot answer is a defect.
+
+  - name: Docs and guides
+    url: https://usetheo.dev/docs
+    about: The framework, the SDK, the UI packages and the gateways, in one place.

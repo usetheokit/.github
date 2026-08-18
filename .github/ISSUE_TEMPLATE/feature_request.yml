@@ -1,0 +1,64 @@
+name: Feature request
+description: Something the stack should do and does not.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Good feature requests start from a problem someone hit, not from an API shape.
+        Tell us what you were trying to build and where it stopped — the design
+        conversation goes better from there.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part
+      options:
+        - "theokit — web framework"
+        - "@theokit/sdk — agent runtime"
+        - "@theokit/ui — React components"
+        - "@theokit/tui — terminal components"
+        - "@theokit/gateway-* — messaging channels"
+        - "@theokit/plugin-* / @theokit/auth-*"
+        - "@theokit/di / @theokit/orm"
+        - "@theokit/skill — Claude Code plugin"
+        - "Cross-cutting / not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What were you building, and what stopped you? Be concrete about the case that hit it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What you are doing instead today
+      description: >
+        The workaround, however ugly — patching a type, forking a component, wrapping a
+        call. It tells us how much the gap actually costs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+      description: >
+        A sketch is enough — a signature, a prop, a CLI flag. If you have a concrete API
+        in mind, write it as code; it is easier to argue with something specific.
+      render: typescript
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the open issues and this is not already requested.
+          required: true
+        - label: I checked the README of the package — this is not already possible.
+          required: true

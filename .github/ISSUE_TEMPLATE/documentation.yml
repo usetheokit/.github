@@ -1,0 +1,34 @@
+name: Documentation
+description: The docs are missing, wrong, or led you the wrong way.
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation defects are real defects. A page that made you write code that does
+        not work is worth the same report as the code that broke.
+
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The URL, or the file and heading.
+      placeholder: "https://usetheo.dev/docs/agents — 'Tools' section"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What it says, and what is actually true
+      description: >
+        Quote the sentence if you can. If the docs are silent rather than wrong, describe
+        the question you arrived with and could not answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested wording
+      description: Optional. If you already know what it should say, write it here and we will usually take it as-is.

@@ -1,0 +1,14 @@
+# The workflows here pin actions to commit SHAs, which trades staleness for review
+# time. Dependabot pays that trade back: it raises the PR that advances a SHA when
+# the upstream action releases, so pinning does not quietly rot.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
