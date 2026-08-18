@@ -46,15 +46,46 @@ front end binds by the same name:
 const { thread, send, status } = useAgent<{ message: string }>('/api/agents/support')
 ```
 
-That `.approval('refund', …)` line is the part people usually rebuild for a week. The run pauses
-before the tool fires, the question reaches the UI, and it resumes on a human answer — the whole
-loop, from one line.
+That `.approval('refund', …)` line is the loop you would otherwise wire by hand: pause the run
+before the tool fires, get the question to the browser, resume on the answer without losing the
+thread. One line here.
 
 ```bash
 npx create-theokit my-app
 ```
 
 **That is the aha.** An agent is a file. Everything below is what happens once you believe it.
+
+---
+
+## So how is this different from what you already use
+
+Honest framing first: these are not the same kind of tool. An orchestration library and a
+full-stack framework do not compete for the same slot in your project. The table is where the
+lines actually diverge — not a scoreboard.
+
+| | **Theokit** | Mastra | Vercel AI SDK | LangGraph | OpenAI Agents SDK |
+| --- | --- | --- | --- | --- | --- |
+| What it is | **Full-stack web framework** | Agent framework + server | Model & UI toolkit | Orchestration library | Agent library |
+| An agent becomes an endpoint | **The file's path is the route** | Register it in a `Mastra` instance | You write the handler | You serve the graph | You write the handler |
+| Agent UI you can install | **`@theokit/ui` + `@theokit/tui`** | Dev playground only | Hooks (`useChat`), not components | — | — |
+| Slack · WhatsApp · Discord · email · SMS | **11 official gateways** | — | — | — | — |
+| Human-in-the-loop | ✅ `.approval()` | ✅ | ✅ | ✅ `interrupt` | ✅ `needsApproval` |
+| LLM providers | **43**, the prefix of the model id | Multi-provider | 23+ | Through LangChain | OpenAI-first, others via adapters |
+| Runtime licence | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT |
+| Sessions on disk | **Native Claude Code `.jsonl`** | Own format | n/a | Own checkpointer | Own format |
+
+**Where they beat us, plainly:** the AI SDK ships around 81 million downloads a month against our
+19 thousand. LangGraph, Mastra and the OpenAI SDK are each in the millions. If what you want is
+the largest ecosystem, the most Stack Overflow answers and the safest résumé line, they are the
+answer and we are not — yet.
+
+What you get here instead is the whole path in one stack: the file becomes a route, the route
+already streams, the UI is installable, the channel is a package, and the runtime underneath is
+yours to fork. Nobody in that table gives you all five.
+
+*Checked against each project's own documentation on 2026-08-18. Something wrong or out of date?
+Open a PR — we would rather be corrected than flattering.*
 
 ---
 
@@ -114,24 +145,18 @@ does not change.
 
 **What happens the day you want out?**
 
-Ask it about the agent stack you are using right now. Most SDKs are open and their runtime is not,
-which means the thing that actually executes your agent belongs to a vendor. Your exit is a rewrite.
+Ask it about whatever executes your agents today. When the answer is a hosted runtime, the exit is
+a rewrite — the thing running your code was never in your repository.
 
-Here the local runtime is Apache-2.0 and runs end to end on your machine, on your provider keys.
-Fork it and every agent you wrote keeps running — no license call, no hosted backend, no notice
-period. Sessions are written as native Claude Code `.jsonl`, so a session your agent produced can
-be reopened with `claude --continue` in a tool we do not own.
-
-The managed cloud is a convenience you can switch on. Nothing depends on it, and the price of
+Here the runtime is Apache-2.0 and runs on your machine, on your provider keys. Fork it and every
+agent you wrote keeps working: no licence call, no hosted backend, no notice period. Sessions land
+on disk as native Claude Code `.jsonl`, so a run your agent produced reopens in a tool we do not
+own. The managed cloud is a convenience you switch on, nothing depends on it, and the price of
 walking away is a `git clone`.
 
-| Layer | Theokit | Typical closed-runtime stack |
-| --- | --- | --- |
-| SDK source | Apache-2.0 | Usually open — table stakes |
-| **The runtime that executes your agent** | **Apache-2.0, runs locally, yours** | Proprietary, vendor-hosted |
-| LLM provider | 43, your keys | Usually one, theirs |
-| Session format | Native Claude Code `.jsonl` | A store you cannot open elsewhere |
-| Cost of leaving | A fork | A rewrite |
+Several libraries in the table above are open source too — that is table stakes, and we are not
+pretending otherwise. The sharper question is how much of the path stays yours when you leave: the
+runtime, the session format, the provider, the channel. Here it is all four.
 
 ---
 
