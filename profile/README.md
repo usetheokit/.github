@@ -15,7 +15,7 @@ One stack. One `pnpm dev`. One deploy. Apache-2.0 all the way down, on your own 
 
 [**Quickstart**](#here-is-the-whole-thing) · [**What you can build**](#what-you-can-actually-build) · [**Everything in the box**](#everything-in-the-box) · [**Compare**](#so-how-is-this-different-from-what-you-already-use) · [**Repositories**](#the-repositories) · [**Contribute**](#come-build-it-with-us)
 
-[usetheo.dev](https://usetheo.dev) · [Docs](https://usetheo.dev/docs) · [Discord](https://discord.usetheo.dev/) · [Good first issues](https://github.com/search?q=org%3Ausetheokit+is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22&type=issues)
+[**theokit.dev**](https://theokit.dev) · [usetheo.dev](https://usetheo.dev) · [Docs](https://usetheo.dev/docs) · [Discord](https://discord.usetheo.dev/) · [Good first issues](https://github.com/search?q=org%3Ausetheokit+is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22&type=issues)
 
 </div>
 
@@ -397,7 +397,7 @@ Semver, changelogs written for the person consuming the change, Apache-2.0 on ev
 
 ### `npx create-theokit my-app`
 
-**[usetheo.dev](https://usetheo.dev)** · **[Discord](https://discord.usetheo.dev/)** · **[npm](https://www.npmjs.com/search?q=%40theokit)**
+**[theokit.dev](https://theokit.dev)** · **[usetheo.dev](https://usetheo.dev)** · **[Discord](https://discord.usetheo.dev/)** · **[npm](https://www.npmjs.com/search?q=%40theokit)**
 
 Apache-2.0 — © 2026 usetheo.dev
 
