@@ -348,9 +348,38 @@ breaks.
 | **[theokit-ui](https://github.com/usetheokit/theokit-ui)** | The agent surface in React — threads, tool calls, cost meters, permission modals. Three runtime themes, shadcn-compatible registry. | [![v](https://img.shields.io/npm/v/@theokit/ui?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/ui) |
 | **[theokit-tui](https://github.com/usetheokit/theokit-tui)** | The same, for the terminal, on Ink. Streaming chat, tool-call cards, diffs, token and cost metrics. | [![v](https://img.shields.io/npm/v/@theokit/tui?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/tui) |
 | **[theokit-gateways](https://github.com/usetheokit/theokit-gateways)** | Eleven channels over one core: Telegram, Discord, Slack, WhatsApp, Teams, Email, SMS, LINE, Matrix, Mattermost. | [![v](https://img.shields.io/npm/v/@theokit/gateway?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/gateway) |
-| **[theokit-plugins](https://github.com/usetheokit/theokit-plugins)** | First-party plugins — three auth providers plus canvas, copilot, realtime, drizzle, email, forms, payments, voice. | — |
+| **[theokit-plugins](https://github.com/usetheokit/theokit-plugins)** | First-party plugins — three auth providers plus canvas, copilot, realtime, drizzle, email, forms, payments, voice. | [11 packages ↓](#the-eleven-plugins) |
 | **[theokit-di](https://github.com/usetheokit/theokit-di)** | A NestJS-flavoured IoC container, agent-aware DI, and a repository-pattern ORM over drizzle. Optional. | [![v](https://img.shields.io/npm/v/@theokit/di?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/di) |
 | **[theokit-skill](https://github.com/usetheokit/theokit-skill)** | Teaches Claude Code the real SDK surface, so it writes correct code instead of plausible code. | [![v](https://img.shields.io/npm/v/@theokit/skill?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/skill) |
+
+---
+
+## The eleven plugins
+
+Each one is its own package on its own version — install the one you need and the other ten stay
+out of your tree. All eleven publish from CI through npm trusted publishing, so every release
+carries a provenance attestation and no long-lived token exists to leak.
+
+| Package | What it does | npm |
+| --- | --- | --- |
+| **[`@theokit/auth-github`](https://www.npmjs.com/package/@theokit/auth-github)** | GitHub OAuth 2.0. One line inside `defineAuth({ providers: [github(…)] })`. | [![v](https://img.shields.io/npm/v/%40theokit%2Fauth-github?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/auth-github) |
+| **[`@theokit/auth-google`](https://www.npmjs.com/package/@theokit/auth-google)** | Google OAuth over OIDC, the same one-line shape. | [![v](https://img.shields.io/npm/v/%40theokit%2Fauth-google?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/auth-google) |
+| **[`@theokit/auth-magic-link`](https://www.npmjs.com/package/@theokit/auth-magic-link)** | Passwordless email sign-in. Any transport, pluggable store. | [![v](https://img.shields.io/npm/v/%40theokit%2Fauth-magic-link?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/auth-magic-link) |
+| **[`@theokit/plugin-canvas`](https://www.npmjs.com/package/@theokit/plugin-canvas)** | Artifacts beside the thread — markdown, code, svg, diff, whiteboard, slides, mermaid, html, images. Side panel plus an agent tool. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-canvas?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-canvas) |
+| **[`@theokit/plugin-copilot`](https://www.npmjs.com/package/@theokit/plugin-copilot)** | A copilot the other people in the room can see. Presence-visible agent member, React hooks, `<CopilotChat />`. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-copilot?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-copilot) |
+| **[`@theokit/plugin-db-drizzle`](https://www.npmjs.com/package/@theokit/plugin-db-drizzle)** | Drizzle as a plugin: a seven-verb `theokit db` CLI, `drizzle-kit studio` passthrough, devtools tab. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-db-drizzle?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-db-drizzle) |
+| **[`@theokit/plugin-email`](https://www.npmjs.com/package/@theokit/plugin-email)** | An `EmailProvider` contract with Resend as the default, React Email opt-in, magic-link template included. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-email?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-email) |
+| **[`@theokit/plugin-forms`](https://www.npmjs.com/package/@theokit/plugin-forms)** | `<TheoForm>` and `<TheoField>` over zod and react-hook-form — server-action errors land back on the right field. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-forms?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-forms) |
+| **[`@theokit/plugin-payments`](https://www.npmjs.com/package/@theokit/plugin-payments)** | One neutral `PaymentProvider` contract, Stripe and AbacatePay behind subpath exports. Webhook signatures verified, dispatch idempotent, PIX a typed capability. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-payments?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-payments) |
+| **[`@theokit/plugin-realtime`](https://www.npmjs.com/package/@theokit/plugin-realtime)** | Presence, rooms and broadcast, with Yjs CRDT when you opt in. Hooks at `/react`. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-realtime?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-realtime) |
+| **[`@theokit/plugin-voice`](https://www.npmjs.com/package/@theokit/plugin-voice)** | STT and TTS bridge, a browser MediaRecorder helper, and the UI to go with it. | [![v](https://img.shields.io/npm/v/%40theokit%2Fplugin-voice?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/plugin-voice) |
+
+```bash
+npm i @theokit/plugin-payments        # or any single one of the eleven
+```
+
+Versions above come from npm, so this table cannot go stale. Source for all of them:
+**[theokit-plugins](https://github.com/usetheokit/theokit-plugins)**.
 
 ---
 
