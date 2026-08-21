@@ -71,9 +71,14 @@ jobs:
           persist-credentials: false
 
       - name: Enable Corepack and pin pnpm
+        # The version reaches the shell as an environment variable. `${{ inputs.x }}`
+        # inside a run block is substituted before bash parses the line, so a value
+        # carrying a shell metacharacter would run as code in this job.
+        env:
+          PNPM_VERSION: ${{ inputs.pnpm-version }}
         run: |
           corepack enable
-          corepack prepare pnpm@${{ inputs.pnpm-version }} --activate
+          corepack prepare "pnpm@${PNPM_VERSION}" --activate
 
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -85,4 +90,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Gates
+        # zizmor: ignore[template-injection]
+        #
+        # This input IS code by contract — it is the gate command the calling
+        # repository wants run, and the whole point of the workflow is to run it.
+        # There is no version of this step where the value is treated as data.
+        #
+        # What bounds it is the trust model of `workflow_call`: the value can only
+        # come from a workflow in a repository that already chose to call this one,
+        # never from a pull request author or an issue title. A caller that can set
+        # this string can equally write the step itself.
         run: ${{ inputs.command }}
