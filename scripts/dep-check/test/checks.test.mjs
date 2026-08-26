@@ -119,6 +119,31 @@ describe("consumersLeftBehind — the reverse check, run by the publisher before
   it("test_is_empty_for_a_patch_nobody_excludes", () => {
     expect(consumersLeftBehind({ consumers, nextVersion: "11.1.1" })).toEqual([]);
   });
+
+  it("test_labels_a_consumer_that_already_requires_something_newer_as_ahead_not_behind", () => {
+    // Seen for real: `theokit@0.56.0` shipped requiring `@theokit/agents: ^12.0.0`
+    // while the checkout still held 11.1.0. That consumer is not stranded by the
+    // release — the checkout is behind the registry. Calling both "left behind" would
+    // put a finding in the publisher's release with nothing for them to do about it.
+    const ahead = [{ pkg: "theokit", repo: "theokit", range: "^12.0.0" }];
+    const found = consumersLeftBehind({ consumers: ahead, nextVersion: "11.1.0" });
+    expect(found).toHaveLength(1);
+    expect(found[0].direction).toBe("ahead");
+  });
+
+  it("test_labels_a_genuinely_stranded_consumer_as_behind", () => {
+    const stranded = [{ pkg: "@theokit/studio", repo: "theokit-studio", range: "^7.6.0" }];
+    expect(consumersLeftBehind({ consumers: stranded, nextVersion: "12.0.0" })[0].direction).toBe("behind");
+  });
+
+  it("test_can_be_asked_for_the_stranded_ones_only", () => {
+    const mixed = [
+      { pkg: "old", range: "^7.6.0" },
+      { pkg: "new", range: "^12.0.0" },
+    ];
+    const found = consumersLeftBehind({ consumers: mixed, nextVersion: "11.1.0", direction: "behind" });
+    expect(found.map((c) => c.pkg)).toEqual(["old"]);
+  });
 });
 
 describe("duplicateSiblingCopies — check D: one runtime, or two?", () => {

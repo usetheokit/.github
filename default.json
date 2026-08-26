@@ -1,0 +1,109 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate policy for the Theokit ecosystem. Extend it with `\"extends\": [\"github>usetheokit/.github\"]` \u2014 one file to change when the policy changes, rather than nine that drift.",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "timezone": "America/Sao_Paulo",
+  "schedule": [
+    "* 0-6 * * 1"
+  ],
+  "prConcurrentLimit": 5,
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Peer ranges on our own packages. Dependabot does not look at peerDependencies for npm at all (dependabot-core#1242), which is why two ranges sat three and four majors behind until someone installed them by hand. This rule is the reason this config exists.",
+      "matchDepTypes": [
+        "peerDependencies"
+      ],
+      "matchPackageNames": [
+        "theokit",
+        "create-theokit",
+        "@theokit/**"
+      ],
+      "rangeStrategy": "replace",
+      "labels": [
+        "dependencies",
+        "peer-contract"
+      ],
+      "addLabels": [
+        "peer-contract"
+      ],
+      "prPriority": 10
+    },
+    {
+      "description": "Peer ranges on third-party packages get widened instead of replaced. We do not test the old major of our own siblings, so claiming support for it would be dishonest; for react or vite, dropping a major that still works narrows our consumers' options for nothing.",
+      "matchDepTypes": [
+        "peerDependencies"
+      ],
+      "matchPackageNames": [
+        "!@theokit/**",
+        "!theokit",
+        "!create-theokit"
+      ],
+      "rangeStrategy": "widen"
+    },
+    {
+      "description": "Our own packages, outside peers. They release constantly, and one pull request per package per week is not reviewed, it is rubber-stamped.",
+      "matchPackageNames": [
+        "theokit",
+        "create-theokit",
+        "@theokit/**"
+      ],
+      "matchDepTypes": [
+        "dependencies",
+        "devDependencies"
+      ],
+      "groupName": "theokit ecosystem",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "description": "Everything else, grouped by what it is rather than by package.",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**",
+        "vite",
+        "typescript",
+        "tsup",
+        "tsx",
+        "@types/**",
+        "@biomejs/**",
+        "knip",
+        "publint",
+        "@arethetypeswrong/**"
+      ],
+      "groupName": "dev tooling",
+      "semanticCommitScope": "deps-dev"
+    }
+  ],
+  "ignoreDeps": [
+    "pnpm"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "* 0-6 * * 1"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "description": "A security fix does not wait for Monday.",
+    "schedule": [
+      "at any time"
+    ],
+    "labels": [
+      "dependencies",
+      "security"
+    ]
+  },
+  "github-actions": {
+    "description": "Off, because Dependabot already raises the pull request that advances a pinned action SHA \u2014 in this repository's .github/dependabot.yml and in theokit-sdk's. Two bots opening the same pull request is noise, and noise is how a real update gets closed unread. When Dependabot is retired, delete this block rather than editing it, so the removal is a decision someone made rather than a default that drifted back on.",
+    "enabled": false
+  }
+}

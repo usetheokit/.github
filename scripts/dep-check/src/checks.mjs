@@ -101,11 +101,25 @@ export function rangeFloor(range, publishedVersions) {
  * already published. This one moves the warning to the release pull request of the
  * package causing the break, where someone can still decide what to do about it.
  */
-export function consumersLeftBehind({ consumers, nextVersion }) {
-  return consumers.filter(({ range }) => {
-    if (!range || LOCAL_PROTOCOL.test(range)) return false;
-    return !semver.satisfies(nextVersion, range);
-  });
+export function consumersLeftBehind({ consumers, nextVersion, direction }) {
+  const found = [];
+  for (const consumer of consumers) {
+    const { range } = consumer;
+    if (!range || LOCAL_PROTOCOL.test(range)) continue;
+    if (semver.satisfies(nextVersion, range)) continue;
+    // "Excludes the new version" covers two different situations, and only one of
+    // them is the publisher's problem. A consumer whose range sits BELOW the release
+    // is stranded by it. A consumer already requiring something ABOVE it is not — the
+    // checkout asking the question is simply behind the registry, which is how
+    // `theokit@0.56.0` showed up requiring agents ^12.0.0 during a sweep run against a
+    // checkout still holding 11.1.0. Reporting both identically puts a finding in a
+    // release with nothing the releaser can act on.
+    const floor = semver.minVersion(range);
+    const consumerDirection = floor && semver.gt(floor, nextVersion) ? "ahead" : "behind";
+    if (direction && consumerDirection !== direction) continue;
+    found.push({ ...consumer, direction: consumerDirection });
+  }
+  return found;
 }
 
 /**

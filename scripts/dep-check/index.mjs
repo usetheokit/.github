@@ -21,6 +21,7 @@
  * none of the other three mean anything either.
  */
 import { parseArgs } from "node:util";
+import semver from "semver";
 import { ceilingDrift, consumersLeftBehind, installedDrift, isSibling, rangeFloor } from "./src/checks.mjs";
 import { findPublishablePackages, resolveInstalledVersion, siblingReferences } from "./src/ecosystem.mjs";
 import { consumersOf, discoverEcosystemPackages, latestVersion, packument, publishedVersions } from "./src/registry.mjs";
@@ -45,6 +46,8 @@ const USAGE = `dep-check <command> [--root <dir>] [--json]
   consumers <pkg> <version>   (E) who breaks if <pkg> publishes <version>.
   install                     (D) pack, install as a consumer, assert one copy of each sibling. Exits 1 on failure.
   audit                       every PUBLISHED package in the scope, not only the ones in this checkout.
+  impact                      who breaks if THIS checkout publishes the versions in its manifests.
+  floor-overrides             the pnpm overrides that pin every sibling to the bottom of its range.
 `;
 
 /**
@@ -183,7 +186,7 @@ async function commandConsumers([pkg, nextVersion]) {
     title: `D) consumers left behind by ${pkg}@${nextVersion}`,
     findings,
     note: `  Checked ${consumers.length} published consumer${consumers.length === 1 ? "" : "s"} of ${pkg}.`,
-    columns: (f) => `${f.pkg.padEnd(28)} ${f.depType.padEnd(17)} declares ${f.range} — excludes ${nextVersion}`,
+    columns: (f) => `[${f.direction}] ${f.pkg.padEnd(26)} ${f.depType.padEnd(17)} declares ${f.range} — excludes ${nextVersion}`,
   });
   return 0; // informational by design: the release decides, this only tells it who pays
 }
@@ -260,6 +263,70 @@ async function commandAudit() {
   return 0;
 }
 
+/**
+ * The reverse check, pointed at the version this checkout is about to publish.
+ *
+ * Every other command lives in the consumer and therefore fires after the fact: the
+ * earliest a consumer can learn it was left behind is the moment the sibling has
+ * already published. This one runs in the publisher's own release pull request, where
+ * the number is already decided and someone can still act on who pays for it.
+ *
+ * Reads the version from the manifest rather than from a git diff, so it needs no
+ * base ref and works the same on a release pull request, on a branch, and by hand.
+ */
+async function commandImpact(root) {
+  const findings = [];
+  let checked = 0;
+  for (const pkg of findPublishablePackages(root)) {
+    const { name, version } = pkg.manifest;
+    if (!version) continue;
+    const consumers = await consumersOf(name);
+    checked += consumers.length;
+    for (const left of consumersLeftBehind({ consumers, nextVersion: version, direction: "behind" })) {
+      findings.push({ publishing: `${name}@${version}`, ...left });
+    }
+  }
+  report({
+    title: "who breaks if this checkout publishes what its manifests say",
+    findings,
+    note: `  Checked ${checked} published consumer declaration${checked === 1 ? "" : "s"}.\n  Informational: a major that leaves consumers behind may well be the right call — this only names who has to move.`,
+    columns: (f) => `${f.publishing.padEnd(30)} leaves ${f.pkg.padEnd(26)} ${f.depType.padEnd(17)} declares ${f.range}`,
+  });
+  return 0;
+}
+
+/**
+ * Check B, in the form a CI job can consume: the pnpm `overrides` block that pins
+ * every sibling to the lowest published version its range admits.
+ *
+ * A wide range is a promise about an interval, and the devDependency only ever
+ * exercises the top of it. Declaring `>=11 <13` while testing 12 exclusively is the
+ * same class of claim as declaring `^7.6.0` while testing 7.6.0 — true about one
+ * point, asserted about a span. This is what makes the bottom of the span real.
+ *
+ * When several packages in a workspace declare different floors for the same sibling,
+ * the LOWEST wins: it is the one an installer could actually resolve for the whole
+ * tree, and the one nothing else is testing.
+ */
+async function commandFloorOverrides(root) {
+  const lowest = new Map();
+  for (const ref of collectReferences(root)) {
+    const floor = rangeFloor(ref.range, await publishedVersions(ref.dep));
+    if (!floor) continue;
+    const current = lowest.get(ref.dep);
+    if (!current || semver.lt(floor, current)) lowest.set(ref.dep, floor);
+  }
+  const overrides = Object.fromEntries([...lowest.entries()].sort());
+  if (flags.json) {
+    console.log(JSON.stringify(overrides, null, 2));
+    return 0;
+  }
+  console.log("\npnpm overrides pinning every sibling to the bottom of its declared range:\n");
+  for (const [dep, version] of Object.entries(overrides)) console.log(`  ${dep.padEnd(24)} ${version}`);
+  if (!Object.keys(overrides).length) console.log("  (none — no sibling range in this repository resolves to a published version)");
+  return 0;
+}
+
 const commands = {
   manifest: () => commandManifest(flags.root),
   floors: () => commandFloors(flags.root),
@@ -267,6 +334,8 @@ const commands = {
   install: () => commandInstall(flags.root),
   consumers: () => commandConsumers(rest),
   audit: () => commandAudit(),
+  impact: () => commandImpact(flags.root),
+  "floor-overrides": () => commandFloorOverrides(flags.root),
 };
 
 if (flags.help || !command || !commands[command]) {
