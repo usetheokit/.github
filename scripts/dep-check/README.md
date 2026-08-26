@@ -97,12 +97,18 @@ workflow. The expensive legs are off for an ordinary push and on for the release
 ```yaml
 jobs:
   dep-check:
-    uses: usetheokit/.github/.github/workflows/dep-check.yml@main
+    uses: usetheokit/.github/.github/workflows/dep-check.yml@workspace
     with:
       run-install-check: ${{ github.base_ref == 'main' }}
       run-floor-check: ${{ github.base_ref == 'main' }}
       run-impact-check: ${{ github.base_ref == 'main' }}
 ```
+
+`@workspace`, not `@main`: that is the only branch this repository has, and its default. The ref was
+written `@main` first, on the assumption that every repository in the organisation follows
+workspace → develop → main. This one does not — and a `uses:` naming a branch that does not exist
+fails at workflow RESOLUTION, before any step runs, with an error about the workflow rather than
+about dependencies.
 
 What makes it a gate is marking **Dependency Gate / dependency gate** required in branch protection.
 A job that runs and reports but is not required blocks nothing.
