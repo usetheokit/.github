@@ -1,0 +1,19 @@
+{
+  "name": "@theokit/dep-check",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The ecosystem dependency gate. Answers four questions about how a package declares its siblings, and refuses to answer them by guessing.",
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "bin": { "dep-check": "./index.mjs" },
+  "scripts": {
+    "test": "vitest run",
+    "check": "node index.mjs manifest --root .."
+  },
+  "dependencies": {
+    "semver": "^7.7.2"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
+  }
+}

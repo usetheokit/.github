@@ -1,0 +1,45 @@
+# Tests the tooling this repository hosts for everyone else.
+#
+# `dep-check` is a detector, and a detector that cannot detect is worse than none —
+# it reports green over the condition it was built to find, and the green is believed.
+# Its suite pins the three peer ranges that actually shipped broken, so a change that
+# stops flagging them fails here rather than in the next release someone installs.
+name: CI
+
+on:
+  push:
+    branches: [main, develop, workspace]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # A cancelled run on an integration branch leaves the commit with no verdict, which
+  # reads the same as a passing one. Only supersede elsewhere.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
+
+jobs:
+  dep-check:
+    name: dep-check suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+
+      - name: Install
+        working-directory: scripts/dep-check
+        run: npm ci --no-audit --no-fund
+
+      - name: Test
+        working-directory: scripts/dep-check
+        run: npm test
