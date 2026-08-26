@@ -350,7 +350,7 @@ breaks.
 | **[theokit-gateways](https://github.com/usetheokit/theokit-gateways)** | Eleven channels over one core: Telegram, Discord, Slack, WhatsApp, Teams, Email, SMS, LINE, Matrix, Mattermost. | [![v](https://img.shields.io/npm/v/@theokit/gateway?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/gateway) |
 | **[theokit-plugins](https://github.com/usetheokit/theokit-plugins)** | First-party plugins — three auth providers plus canvas, copilot, realtime, drizzle, email, forms, payments, voice. | [11 packages ↓](#the-eleven-plugins) |
 | **[theokit-di](https://github.com/usetheokit/theokit-di)** | A NestJS-flavoured IoC container, agent-aware DI, and a repository-pattern ORM over drizzle. Optional. | [![v](https://img.shields.io/npm/v/@theokit/di?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/di) |
-| **[theokit-skill](https://github.com/usetheokit/theokit-skill)** | Teaches Claude Code the real SDK surface, so it writes correct code instead of plausible code. | [![v](https://img.shields.io/npm/v/@theokit/skill?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/skill) |
+| **[theokit-skills](https://github.com/usetheokit/theokit-skills)** | Teaches the real SDK surface to the AI coding tools you already use — Claude Code, Codex, Gemini CLI, Copilot, Zed — so they write correct code instead of plausible code. | [![v](https://img.shields.io/npm/v/@theokit/skills?style=flat-square&label=&color=CB3837)](https://www.npmjs.com/package/@theokit/skills) |
 
 ---
 
