@@ -25,6 +25,7 @@ import semver from "semver";
 import { ceilingDrift, consumersLeftBehind, installedDrift, isSibling, rangeFloor } from "./src/checks.mjs";
 import { findPublishablePackages, resolveInstalledVersion, siblingReferences } from "./src/ecosystem.mjs";
 import { consumersOf, discoverEcosystemPackages, latestVersion, packument, publishedVersions } from "./src/registry.mjs";
+import { detectPackageManager, pinOverrides } from "./src/package-manager.mjs";
 import { installFromTarball } from "./src/tarball.mjs";
 
 const { values: flags, positionals } = parseArgs({
@@ -33,6 +34,7 @@ const { values: flags, positionals } = parseArgs({
     root: { type: "string", default: "." },
     json: { type: "boolean", default: false },
     markdown: { type: "boolean", default: false },
+    unlocked: { type: "boolean", default: false },
     help: { type: "boolean", short: "h", default: false },
   },
 });
@@ -47,7 +49,11 @@ const USAGE = `dep-check <command> [--root <dir>] [--json]
   install                     (D) pack, install as a consumer, assert one copy of each sibling. Exits 1 on failure.
   audit                       every PUBLISHED package in the scope, not only the ones in this checkout.
   impact                      who breaks if THIS checkout publishes the versions in its manifests.
-  floor-overrides             the pnpm overrides that pin every sibling to the bottom of its range.
+  floor-overrides             the overrides that pin every sibling to the bottom of its range.
+  pin-floors                  write those overrides into the repository's manifest, where its
+                              package manager reads them. Detected from the lockfile, not the
+                              packageManager field — the two can disagree.
+  install-command             print the install command for this repository's lockfile.
 `;
 
 /**
@@ -308,7 +314,7 @@ async function commandImpact(root) {
  * the LOWEST wins: it is the one an installer could actually resolve for the whole
  * tree, and the one nothing else is testing.
  */
-async function commandFloorOverrides(root) {
+async function lowestFloors(root) {
   const lowest = new Map();
   for (const ref of collectReferences(root)) {
     const floor = rangeFloor(ref.range, await publishedVersions(ref.dep));
@@ -316,14 +322,47 @@ async function commandFloorOverrides(root) {
     const current = lowest.get(ref.dep);
     if (!current || semver.lt(floor, current)) lowest.set(ref.dep, floor);
   }
-  const overrides = Object.fromEntries([...lowest.entries()].sort());
+  return Object.fromEntries([...lowest.entries()].sort());
+}
+
+async function commandFloorOverrides(root) {
+  const overrides = await lowestFloors(root);
   if (flags.json) {
     console.log(JSON.stringify(overrides, null, 2));
     return 0;
   }
-  console.log("\npnpm overrides pinning every sibling to the bottom of its declared range:\n");
+  console.log("\noverrides pinning every sibling to the bottom of its declared range:\n");
   for (const [dep, version] of Object.entries(overrides)) console.log(`  ${dep.padEnd(24)} ${version}`);
   if (!Object.keys(overrides).length) console.log("  (none — no sibling range in this repository resolves to a published version)");
+  return 0;
+}
+
+/** The floor overrides, computed and written where this repository's manager reads them. */
+async function commandPinFloors(root) {
+  const lowest = await lowestFloors(root);
+  const result = pinOverrides(root, lowest);
+  if (!Object.keys(result.written).length) {
+    console.log("no floor to pin — no sibling range in this repository resolves to a published version");
+    return 0;
+  }
+  console.log(`pinned ${Object.keys(result.written).length} sibling(s) under \`${result.field}\` for ${result.manager}:`);
+  for (const [dep, version] of Object.entries(result.written)) console.log(`  ${dep.padEnd(24)} ${version}`);
+  return 0;
+}
+
+/**
+ * The install command for this repository, chosen by the lockfile on disk.
+ *
+ * A workflow that hardcodes `pnpm install --frozen-lockfile` fails on a repository that
+ * uses npm, and the failure looks like a dependency problem rather than a wrong guess.
+ */
+function commandInstallCommand(root, { unlocked = false } = {}) {
+  const detected = detectPackageManager(root);
+  if (!detected) {
+    console.error(`no lockfile in ${root}: cannot tell which package manager this repository uses`);
+    return 1;
+  }
+  console.log((unlocked ? detected.unlocked : detected.install).join(" "));
   return 0;
 }
 
@@ -336,6 +375,8 @@ const commands = {
   audit: () => commandAudit(),
   impact: () => commandImpact(flags.root),
   "floor-overrides": () => commandFloorOverrides(flags.root),
+  "pin-floors": () => commandPinFloors(flags.root),
+  "install-command": () => commandInstallCommand(flags.root, { unlocked: flags.unlocked }),
 };
 
 if (flags.help || !command || !commands[command]) {

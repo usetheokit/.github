@@ -81,6 +81,9 @@ jobs:
           persist-credentials: false
 
       - name: Enable Corepack and pin pnpm
+        # Skipped for a repository that does not use pnpm — theokit-skills is on npm, and
+        # fetching a pnpm it will never invoke is a download and a lie in the log.
+        if: ${{ hashFiles('repo/pnpm-lock.yaml') != '' }}
         # The version reaches the shell as an environment variable. `${{ inputs.x }}`
         # inside a run block is substituted before bash parses the line, so a value
         # carrying a shell metacharacter would run as code in this job.
@@ -102,8 +105,17 @@ jobs:
       - name: Install the repository under test
         # The whole point of check A is comparing the declared range against what the
         # lockfile actually resolves, so the tree has to exist before it can be read.
-        working-directory: repo
-        run: pnpm install --frozen-lockfile
+        #
+        # The command comes from the lockfile on disk rather than from `packageManager`,
+        # because the two can disagree: theokit-skills declares pnpm, ships a
+        # package-lock.json and runs `npm install` in its own CI. A hardcoded
+        # `pnpm install --frozen-lockfile` fails there, and the failure reads like a
+        # dependency problem instead of a wrong guess.
+        run: |
+          set -euo pipefail
+          cmd=$(node gate/scripts/dep-check/index.mjs install-command --root repo)
+          echo "detected: $cmd"
+          cd repo && $cmd
 
       - name: A — declared range vs installed version
         run: node gate/scripts/dep-check/index.mjs manifest --root repo
@@ -135,6 +147,7 @@ jobs:
           persist-credentials: false
 
       - name: Enable Corepack and pin pnpm
+        if: ${{ hashFiles('repo/pnpm-lock.yaml') != '' }}
         env:
           PNPM_VERSION: ${{ inputs.pnpm-version }}
         run: |
@@ -151,30 +164,33 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Install the repository under test
-        working-directory: repo
-        run: pnpm install --frozen-lockfile
-
-      - name: Pin every sibling to the bottom of its declared range
-        # Rewrites pnpm.overrides in the workspace root and reinstalls. The lockfile is
-        # deliberately NOT frozen here: pinning a floor is a resolution change, and the
-        # whole point of the leg is to resolve differently from the committed lockfile.
+        # The command comes from the lockfile on disk rather than from `packageManager`,
+        # because the two can disagree: theokit-skills declares pnpm, ships a
+        # package-lock.json and runs `npm install` in its own CI. A hardcoded
+        # `pnpm install --frozen-lockfile` fails there, and the failure reads like a
+        # dependency problem instead of a wrong guess.
         run: |
           set -euo pipefail
-          node gate/scripts/dep-check/index.mjs floor-overrides --root repo --json > floors.json
-          cat floors.json
-          node -e '
-            const fs = require("fs");
-            const floors = JSON.parse(fs.readFileSync("floors.json", "utf8"));
-            if (!Object.keys(floors).length) { console.log("no floor to pin"); process.exit(0); }
-            const path = "repo/package.json";
-            const manifest = JSON.parse(fs.readFileSync(path, "utf8"));
-            manifest.pnpm = { ...manifest.pnpm, overrides: { ...manifest.pnpm?.overrides, ...floors } };
-            fs.writeFileSync(path, JSON.stringify(manifest, null, 2));
-          '
+          cmd=$(node gate/scripts/dep-check/index.mjs install-command --root repo)
+          echo "detected: $cmd"
+          cd repo && $cmd
+
+      - name: Pin every sibling to the bottom of its declared range
+        # Writes the overrides into the field this repository's package manager reads —
+        # `pnpm.overrides` for pnpm, top-level `overrides` for npm, `resolutions` for
+        # yarn. Writing to the wrong one is silently ignored, and then the reinstall
+        # resolves the same versions, the suite passes, and the leg reports a floor it
+        # never visited. That is why the choice lives in a tested module rather than here.
+        run: node gate/scripts/dep-check/index.mjs pin-floors --root repo
 
       - name: Reinstall at the floor
-        working-directory: repo
-        run: pnpm install --no-frozen-lockfile
+        # Deliberately NOT frozen: pinning a floor IS a resolution change, and the whole
+        # point of the leg is to resolve differently from the committed lockfile.
+        run: |
+          set -euo pipefail
+          cmd=$(node gate/scripts/dep-check/index.mjs install-command --root repo --unlocked)
+          echo "detected: $cmd"
+          cd repo && $cmd
 
       - name: Suite
         working-directory: repo

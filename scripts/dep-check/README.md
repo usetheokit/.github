@@ -13,7 +13,9 @@ blocking at all.
 | --- | --- | --- | --- |
 | `manifest` | does the declared range admit the version the lockfile installs? | no | **yes**, every push |
 | `floors` | which published version is the bottom of each range? | yes | no — reports |
-| `floor-overrides` | the pnpm `overrides` that pin every sibling to that bottom | yes | no — feeds the floor CI leg |
+| `floor-overrides` | the `overrides` that pin every sibling to that bottom | yes | no — reports |
+| `pin-floors` | write those overrides where this repo's package manager reads them | yes | no — feeds the floor CI leg |
+| `install-command` | the install command for this repository's lockfile | no | no |
 | `registry` | does the range still admit the sibling's published `latest`? | yes | **no** |
 | `install` | does the tarball install as a consumer, with one copy of each sibling? | yes | **yes**, at release |
 | `consumers <pkg> <version>` | who breaks if `<pkg>` publishes `<version>`? | yes | no |
@@ -64,13 +66,28 @@ their source.
 node index.mjs manifest --root ../..            # offline, exits 1 on drift
 node index.mjs registry --root ../..            # reports, never exits 1
 node index.mjs install  --root ../..            # packs and installs; exits 1 on ERESOLVE or a duplicate
-node index.mjs floor-overrides --root ../..     # the pnpm overrides that pin every range to its floor
+node index.mjs floor-overrides --root ../..     # the overrides that pin every range to its floor
+node index.mjs pin-floors --root ../..          # ...and write them where this repo's manager reads them
+node index.mjs install-command --root ../..     # pnpm or npm, decided by the lockfile on disk
 node index.mjs impact   --root ../..            # who this checkout's versions would strand
 node index.mjs consumers @theokit/agents 12.0.0 # who breaks if agents cuts that major
 node index.mjs audit                            # every published package in the scope
 ```
 
 `--json` on any of them for a workflow to read, `--markdown` for an issue body.
+
+## One package manager is not assumed
+
+The install command and the overrides field are both chosen from the **lockfile on disk**, never
+from the `packageManager` manifest field, because the two can disagree: `@theokit/skills` declares
+`pnpm@10.34.1`, ships a `package-lock.json`, has no `pnpm-lock.yaml`, and runs `npm install` in its
+own CI. A gate that trusted the field would run `pnpm install --frozen-lockfile` there and fail on a
+repository that is perfectly healthy.
+
+The overrides field differs per manager — `pnpm.overrides`, npm's top-level `overrides`, yarn's
+`resolutions` — and writing to the wrong one is **silently ignored**. The floor leg would then
+reinstall the same versions, pass, and report a floor it never visited. That is why the choice lives
+in a tested module rather than in three lines of YAML.
 
 ## Wiring
 
