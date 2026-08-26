@@ -54,6 +54,7 @@ const USAGE = `dep-check <command> [--root <dir>] [--json]
                               package manager reads them. Detected from the lockfile, not the
                               packageManager field — the two can disagree.
   install-command             print the install command for this repository's lockfile.
+  run-command <script>        print the command that runs a package script here (default: test).
 `;
 
 /**
@@ -366,6 +367,24 @@ function commandInstallCommand(root, { unlocked = false } = {}) {
   return 0;
 }
 
+/**
+ * The command that runs a package script here — `pnpm test`, `npm run test`, and so on.
+ *
+ * Exists because detecting the manager for the install and then hardcoding `pnpm test`
+ * is the same as not detecting it: the floor leg failed on the ecosystem's one npm
+ * repository with `pnpm: command not found`, exit 127, in a job whose name said it had
+ * run the suite at the bottom of every declared range. It had run nothing.
+ */
+function commandRunCommand(root, script) {
+  const detected = detectPackageManager(root);
+  if (!detected) {
+    console.error(`no lockfile in ${root}: cannot tell which package manager this repository uses`);
+    return 1;
+  }
+  console.log([...detected.run, script || "test"].join(" "));
+  return 0;
+}
+
 const commands = {
   manifest: () => commandManifest(flags.root),
   floors: () => commandFloors(flags.root),
@@ -377,6 +396,7 @@ const commands = {
   "floor-overrides": () => commandFloorOverrides(flags.root),
   "pin-floors": () => commandPinFloors(flags.root),
   "install-command": () => commandInstallCommand(flags.root, { unlocked: flags.unlocked }),
+  "run-command": () => commandRunCommand(flags.root, rest[0]),
 };
 
 if (flags.help || !command || !commands[command]) {

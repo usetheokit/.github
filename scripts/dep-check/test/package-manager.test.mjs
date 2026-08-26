@@ -29,6 +29,16 @@ describe("detectPackageManager", () => {
   it("test_returns_null_rather_than_guessing_when_there_is_no_lockfile", () => {
     expect(detectPackageManager(scratch({ lockfile: null }))).toBeNull();
   });
+
+  it("test_carries_the_run_command_too_not_only_the_install_one", () => {
+    // The defect this closes: the gate detected the manager for `install` and for the
+    // overrides field, then ran a hardcoded `pnpm test` — which on the one npm repository
+    // in the ecosystem produced `pnpm: command not found`, exit 127, in a job whose job
+    // name promised it had run the suite. Detecting the manager in two places out of
+    // three is indistinguishable from not detecting it at all.
+    expect(detectPackageManager(scratch({ lockfile: "package-lock.json" })).run).toEqual(["npm", "run"]);
+    expect(detectPackageManager(scratch({ lockfile: "pnpm-lock.yaml" })).run).toEqual(["pnpm", "run"]);
+  });
 });
 
 describe("pinOverrides", () => {

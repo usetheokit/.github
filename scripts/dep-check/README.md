@@ -16,6 +16,7 @@ blocking at all.
 | `floor-overrides` | the `overrides` that pin every sibling to that bottom | yes | no — reports |
 | `pin-floors` | write those overrides where this repo's package manager reads them | yes | no — feeds the floor CI leg |
 | `install-command` | the install command for this repository's lockfile | no | no |
+| `run-command` | the command that runs a package script here | no | no |
 | `registry` | does the range still admit the sibling's published `latest`? | yes | **no** |
 | `install` | does the tarball install as a consumer, with one copy of each sibling? | yes | **yes**, at release |
 | `consumers <pkg> <version>` | who breaks if `<pkg>` publishes `<version>`? | yes | no |
@@ -88,6 +89,13 @@ The overrides field differs per manager — `pnpm.overrides`, npm's top-level `o
 `resolutions` — and writing to the wrong one is **silently ignored**. The floor leg would then
 reinstall the same versions, pass, and report a floor it never visited. That is why the choice lives
 in a tested module rather than in three lines of YAML.
+
+There are **three** places the manager has to be right, not two: the install, the overrides field,
+and the command that runs the suite. The first version of this got two of them and hardcoded
+`pnpm test` for the third, which failed on `@theokit/skills` with `pnpm: command not found` — exit
+127, in a job whose name said it had run the suite at the bottom of every declared range. It had run
+nothing. Detecting the manager in two places out of three is indistinguishable from not detecting
+it at all.
 
 ## Wiring
 

@@ -33,9 +33,14 @@ on:
         type: boolean
         default: false
       test-command:
-        description: 'The suite to run for the floor leg. Must be the same one contributors run locally.'
+        description: |
+          The suite to run for the floor leg. Leave empty to derive it from the repository's
+          lockfile — the default used to be the literal `pnpm test`, which produced
+          `pnpm: command not found` (exit 127) on the one npm repository in the ecosystem,
+          in a job whose name promised it had run the suite. Set it only when the script is
+          not `test`.
         type: string
-        default: 'pnpm test'
+        default: ''
       run-install-check:
         description: |
           Also pack each publishable package and install it into an empty project with npm,
@@ -193,15 +198,28 @@ jobs:
           cd repo && $cmd
 
       - name: Suite
-        working-directory: repo
         # zizmor: ignore[template-injection]
         #
-        # This input IS code by contract — it is the suite the calling repository wants
-        # run at the floor, and running it is the entire job. What bounds it is the trust
-        # model of `workflow_call`: the value can only come from a workflow in a repository
-        # that already chose to call this one, never from a pull request author. A caller
-        # that can set this string can equally write the step itself.
-        run: ${{ inputs.test-command }}
+        # This input IS code by contract — it is the suite the calling repository wants run
+        # at the floor, and running it is the entire job. What bounds it is the trust model
+        # of `workflow_call`: the value can only come from a workflow in a repository that
+        # already chose to call this one, never from a pull request author. A caller that
+        # can set this string can equally write the step itself.
+        #
+        # Empty means "derive it", which is the default: the manager comes from the lockfile
+        # the same way the install and the overrides field do. Detecting it in two places out
+        # of three is indistinguishable from not detecting it at all.
+        env:
+          CALLER_COMMAND: ${{ inputs.test-command }}
+        run: |
+          set -euo pipefail
+          if [ -n "${CALLER_COMMAND}" ]; then
+            cmd="${CALLER_COMMAND}"
+          else
+            cmd=$(node gate/scripts/dep-check/index.mjs run-command --root repo test)
+          fi
+          echo "suite: $cmd"
+          cd repo && $cmd
 
   impact:
     name: consumers this release would strand
