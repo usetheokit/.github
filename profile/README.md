@@ -235,24 +235,28 @@ say what connects.
 ## So how is this different from what you already use
 
 These are not the same kind of tool — an orchestration library and a full-stack framework do not
-compete for the same slot. Only the rows below are ones we verified in each project's own docs
-today; where a project's documentation does not cover something, the cell says so rather than
-claiming a gap.
+compete for the same slot. Only the rows below are ones we verified in each project's own docs;
+where a project's documentation does not cover something, the cell says so rather than claiming a
+gap. **Every cell has a dated source in [`comparison-sources.md`](comparison-sources.md)** — a claim
+about somebody else's project without a link is how four cells shipped wrong in our favour on
+2026-08-18.
 
 | | **Theokit** | Mastra | Vercel AI SDK | LangGraph | OpenAI Agents SDK |
 | --- | --- | --- | --- | --- | --- |
 | What it is | **Full-stack web framework** | Agent framework + server | Model & UI toolkit | Orchestration library | Agent library |
 | Pages, file routing, SSR | **Yes — it *is* the web framework** | No — bring your own | No — pairs with Next.js | No | No |
 | An agent becomes an endpoint | **The file's path is the route** | Register it in a `Mastra` instance | You write the handler | You serve the graph | You write the handler |
-| Chat / agent UI | **`@theokit/ui` + `@theokit/tui`** — web and terminal | Dev playground | [AI Elements](https://github.com/vercel/ai-elements) — official, shadcn-based | [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) — official app | — |
-| Messaging channels | **11 first-party gateways** | Via Vercel's `@chat-adapter/*` | [`@chat-adapter/*`](https://www.npmjs.com/org/chat-adapter) — official | Not in its docs | Not in its docs |
+| Chat / agent UI | **`@theokit/ui` + `@theokit/tui`** — web and terminal | Dev playground (`mastra dev`) | [AI Elements](https://github.com/vercel/ai-elements) — official, shadcn-based | [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) — official app | [ChatKit](https://developers.openai.com/api/docs/guides/chatkit) — official embed |
+| Messaging channels | **10 first-party gateways** | Via Vercel's `@chat-adapter/*` | [`@chat-adapter/*`](https://www.npmjs.com/org/chat-adapter) — official | [langgraph-messaging-integrations](https://github.com/langchain-ai/langgraph-messaging-integrations) — official, Slack | Not in its docs |
 | Human-in-the-loop | ✅ `.approval()` | ✅ | ✅ | ✅ `interrupt` | ✅ `needsApproval` |
-| LLM providers | **43**, the prefix of the model id | Multi-provider | First-party + community | Through LangChain | OpenAI-first, others via adapters |
+| LLM providers | **45**, the prefix of the model id | Multi-provider | First-party + community | Through LangChain | OpenAI-first, others via adapters |
 | Runtime licence | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT |
 
-**Read that honestly.** Human-in-the-loop is table stakes — everyone has it. Vercel and LangChain
-both ship an official chat UI, and Mastra reaches Slack and WhatsApp through Vercel's adapters, so
-neither UI nor channels are ours alone. And they are far bigger: the AI SDK does around 81 million
+**Read that honestly.** Human-in-the-loop is table stakes — everyone has it. All four ship or
+document a first-party chat UI — Vercel's AI Elements, LangChain's Agent Chat UI, OpenAI's ChatKit,
+Mastra's dev playground — and three of the four reach messaging platforms, Mastra and Vercel through
+Vercel's adapters and LangChain through its own Slack integration. Neither UI nor channels are ours
+alone. And they are far bigger: the AI SDK does around 81 million
 downloads a month against our 19 thousand. If you want the largest ecosystem and the most answers
 already written, that is where they are.
 
