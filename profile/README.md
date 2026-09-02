@@ -249,7 +249,7 @@ about somebody else's project without a link is how four cells shipped wrong in 
 | Chat / agent UI | **`@theokit/ui` + `@theokit/tui`** — web and terminal | Dev playground (`mastra dev`) | [AI Elements](https://github.com/vercel/ai-elements) — official, shadcn-based | [Agent Chat UI](https://github.com/langchain-ai/agent-chat-ui) — official app | [ChatKit](https://developers.openai.com/api/docs/guides/chatkit) — official embed |
 | Messaging channels | **10 first-party gateways** | Via Vercel's `@chat-adapter/*` | [`@chat-adapter/*`](https://www.npmjs.com/org/chat-adapter) — official | [langgraph-messaging-integrations](https://github.com/langchain-ai/langgraph-messaging-integrations) — official, Slack | Not in its docs |
 | Human-in-the-loop | ✅ `.approval()` | ✅ | ✅ | ✅ `interrupt` | ✅ `needsApproval` |
-| LLM providers | **45**, the prefix of the model id | Multi-provider | First-party + community | Through LangChain | OpenAI-first, others via adapters |
+| LLM providers | **43**, the prefix of the model id | Multi-provider | First-party + community | Through LangChain | OpenAI-first, others via adapters |
 | Runtime licence | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT |
 
 **Read that honestly.** Human-in-the-loop is table stakes — everyone has it. All four ship or

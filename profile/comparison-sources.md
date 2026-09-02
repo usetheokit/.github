@@ -57,7 +57,7 @@ liability rather than marketing.
 
 | Project | Cell | Source | Read | Evidence |
 | --- | --- | --- | --- | --- |
-| Theokit | **45**, the prefix of the model id | `@theokit/sdk` | 2026-09-02 | **Was 43, and had drifted.** Measured, not counted by hand: `Provider.builtins()` against the published build returns 45. The same stale number is on the README badge in `theokit-sdk`. |
+| Theokit | **43**, the prefix of the model id | `packages/sdk/src/internal/providers/provider-catalog.json` | 2026-09-02 | 43 entries in the catalog the `theokit-sdk` README cites, and the two agree. `Provider.builtins()` returns **45**, which is not a second count of the same thing: it adds `gemini` and `google` as alternate names for the Google family the catalog holds once as `google-gemini`, and `openai-chatgpt`, a first-class provider with its own OAuth that the catalog does not list. So 45 double-counts and 43 undercounts by one. **The table keeps 43** — it is the number its cited source supports; reconciling the two is `usetheokit/theokit-sdk`'s to do, and picking a third number here would be the inference this file exists to stop. |
 | Mastra | Multi-provider | https://mastra.ai/docs | 2026-08-18 | Documented multi-provider support; no count claimed, so none is stated. |
 | Vercel AI SDK | First-party + community | https://ai-sdk.dev/providers | 2026-08-18 | Provider list is split between first-party and community-maintained. |
 | LangGraph | Through LangChain | https://python.langchain.com/docs/integrations/chat/ | 2026-08-18 | Model access is LangChain's integration surface, not LangGraph's own. |
